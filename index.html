@@ -68,9 +68,10 @@
       margin-bottom: 4px;
     }
 
+    /* ① Purdue now black like .role */
     .sidebar .uni {
       font-size: 0.8rem;
-      color: var(--accent);
+      color: var(--text);
       margin-bottom: 20px;
     }
 
@@ -115,9 +116,7 @@
       padding-top: 12px;
       padding-bottom: 48px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 0;
     }
-
     section:last-child { border-bottom: none; }
 
     h2 {
@@ -139,6 +138,7 @@
     }
     #about p:last-child { margin-bottom: 0; }
 
+    /* ── EDUCATION ── */
     .edu-item {
       display: flex;
       justify-content: space-between;
@@ -152,6 +152,7 @@
     .edu-inst { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
     .edu-year { font-size: 0.8rem; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
 
+    /* ── INTERESTS ── */
     .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     .tag {
       background: #eef2f7;
@@ -161,22 +162,38 @@
       font-size: 0.8rem;
     }
 
+    /* ── PAPERS ── */
     .paper {
       padding: 16px 0;
       border-bottom: 1px solid var(--border);
     }
     .paper:last-child { border-bottom: none; }
 
+    /* JMP highlight */
+    .paper.jmp {
+      background: #f7faff;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 4px;
+    }
+
+    .paper-labels { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+
     .paper-label {
       display: inline-block;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       background: #eef2f7;
       color: var(--accent);
       padding: 2px 8px;
       border-radius: 3px;
-      margin-bottom: 6px;
+    }
+
+    .paper-label.jmp-label {
+      background: var(--accent);
+      color: #fff;
     }
 
     .paper-title {
@@ -187,17 +204,33 @@
       margin-bottom: 4px;
     }
 
-    .paper-title a {
-      color: var(--text);
-      text-decoration: none;
-      border-bottom: 1px solid var(--border);
-      transition: color 0.15s, border-color 0.15s;
-    }
-    .paper-title a:hover { color: var(--accent); border-color: var(--accent); }
-
     .paper-authors { font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
-    .paper-abs { font-size: 0.85rem; color: #444; line-height: 1.75; }
+    .paper-abs { font-size: 0.85rem; color: #444; line-height: 1.75; margin-bottom: 8px; }
 
+    /* ⑥ small icon-style link badges */
+    .paper-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 3px;
+      padding: 2px 8px;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .paper-link:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .paper-link svg { width: 11px; height: 11px; fill: currentColor; }
+
+    /* ── TEACHING ── */
     .t-item {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -277,6 +310,8 @@
     <div class="contact">
       <div>West Lafayette, IN</div>
       <div>nsafahie[at]purdue.edu</div>
+      <!-- ② LinkedIn above CV -->
+      <div><a href="https://www.linkedin.com/in/navid-safahieh/" target="_blank" rel="noopener">LinkedIn</a></div>
       <div><a href="cv.pdf">Curriculum Vitae</a></div>
     </div>
 
@@ -298,14 +333,16 @@
     <!-- ABOUT -->
     <section id="about">
       <h2>About</h2>
+      <!-- ③ Job market mention, JMP topic, keep last sentence -->
       <p>
-        I am a Ph.D. Candidate in Economics at Purdue University. My research lies at the intersection of
-        <strong>macroeconomics</strong>, <strong>search theory</strong>, and <strong>transport economics</strong>.
+        I am a Ph.D. Candidate in Economics at Purdue University and will be on the
+        <strong>job market in 2025–2026</strong>. My job market paper studies efficiency
+        in decentralized transportation markets, examining how geography shapes competition,
+        matching, and welfare when travelers and carriers interact strategically across locations.
       </p>
       <p>
-        My current work studies how differences in outside options across workers shape wages, firm entry,
-        and job allocation in the labor market, using directed search models. I also examine how exogenous
-        shocks — such as fuel price changes and the COVID-19 pandemic — affect public transportation demand.
+        My research lies at the intersection of <strong>macroeconomics</strong>,
+        <strong>search theory</strong>, and <strong>transport economics</strong>.
       </p>
       <p>
         Prior to economics, I trained as a civil and environmental engineer at Sharif University of Technology.
@@ -318,10 +355,11 @@
 
       <div class="edu-item">
         <div>
-          <div class="edu-deg">Ph.D. Candidate in Economics</div>
+          <div class="edu-deg">Ph.D. in Economics</div>
+          <!-- ④ Expected graduation year -->
           <div class="edu-inst">Purdue University &mdash; Indiana, USA</div>
         </div>
-        <div class="edu-year">Current</div>
+        <div class="edu-year">Expected 2027</div>
       </div>
 
       <div class="edu-item">
@@ -355,8 +393,35 @@
     <section id="research">
       <h2>Research</h2>
 
+      <!-- ⑤ JMP — featured -->
+      <div class="paper jmp">
+        <div class="paper-labels">
+          <span class="paper-label jmp-label">Job Market Paper</span>
+          <span class="paper-label">Working Paper</span>
+        </div>
+        <div class="paper-title">
+          Decentralized Transportation Markets: A Global Directed Search Approach
+        </div>
+        <div class="paper-authors">Navid Safahieh</div>
+        <div class="paper-abs">
+          I study how geography shapes competition, matching, and welfare in decentralized
+          transportation markets. I develop a dynamic directed-search model in which travelers
+          and carriers can match remotely before the carrier arrives. Travelers and carriers
+          strategically choose where to apply and what requests to accept, and unmatched carriers
+          relocate across locations. Location affects not only costs but also market access:
+          attractive locations have thicker demand but stronger competition, while peripheral
+          carriers may reposition to improve future prospects. I characterize equilibrium prices,
+          matching probabilities, and relocation flows, and compare them to the socially efficient
+          allocation. The model highlights how spatial frictions and remote matching shape matching
+          patterns and the geographic allocation of capacity, with implications for ride-hailing
+          and dry bulk shipping markets.
+        </div>
+      </div>
+
       <div class="paper">
-        <span class="paper-label">Working Paper</span>
+        <div class="paper-labels">
+          <span class="paper-label">Working Paper</span>
+        </div>
         <div class="paper-title">When Outside Options Shape the Labor Market: A Directed Search Perspective</div>
         <div class="paper-authors">Navid Safahieh</div>
         <div class="paper-abs">
@@ -367,32 +432,47 @@
         </div>
       </div>
 
+      <!-- ⑥ link badges instead of title hyperlink -->
       <div class="paper">
-        <span class="paper-label">Working Paper</span>
+        <div class="paper-labels">
+          <span class="paper-label">Working Paper</span>
+        </div>
         <div class="paper-title">
-          <a href="https://dx.doi.org/10.2139/ssrn.4830956" target="_blank" rel="noopener">
-            The Heterogeneous Effects of Exogenous Shocks on Public Transportation Demand
-          </a>
+          The Heterogeneous Effects of Exogenous Shocks on Public Transportation Demand
         </div>
         <div class="paper-authors">With Kowsar Yousefi and Amir Samimi</div>
         <div class="paper-abs">
           A sudden gas price shock increased subway usage by approximately 3.9% (cross-price elasticity ≈ 0.044),
           while the COVID-19 pandemic reduced subway ridership by approximately 42.6%.
         </div>
+        <div class="paper-links">
+          <a class="paper-link" href="https://dx.doi.org/10.2139/ssrn.4830956" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+            SSRN
+          </a>
+        </div>
       </div>
 
+      <!-- ⑦ "Published" instead of "Journal Publication" -->
       <div class="paper">
-        <span class="paper-label">Journal Publication &mdash; IATSS Research (2022)</span>
+        <div class="paper-labels">
+          <span class="paper-label">Published</span>
+          <span class="paper-label">IATSS Research · 2022</span>
+        </div>
         <div class="paper-title">
-          <a href="https://doi.org/10.1016/j.iatssr.2022.03.004" target="_blank" rel="noopener">
-            Modeling the Accuracy of Traffic Crash Prediction Models
-          </a>
+          Modeling the Accuracy of Traffic Crash Prediction Models
         </div>
         <div class="paper-authors">With Mohammad Hesam Rashidi, Soheil Keshavarz, Parham Pazari, and Amir Samimi</div>
         <div class="paper-abs">
           Modeling the forecasting accuracy of traffic crash prediction across 31 provinces of Iran.
           Key predictors include crash variability, historical crash counts, employment ratio, GDP per capita,
           and traffic exposure.
+        </div>
+        <div class="paper-links">
+          <a class="paper-link" href="https://doi.org/10.1016/j.iatssr.2022.03.004" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+            IATSS Research
+          </a>
         </div>
       </div>
     </section>
@@ -401,13 +481,14 @@
     <section id="teaching">
       <h2>Teaching</h2>
 
+      <!-- ⑧ Fall/Spring + year -->
       <div class="t-item">
         <div>
           <div class="t-course">Principles of Macroeconomics <span style="font-weight:400;color:var(--muted)">(Undergraduate)</span></div>
           <div class="t-role">Instructor</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Aug 2025</div>
+          <div class="t-date">Fall 2025</div>
           <div class="t-inst">Purdue University</div>
         </div>
       </div>
@@ -418,7 +499,7 @@
           <div class="t-role">TA to Prof. Seunghoon Na</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Oct – Dec 2023</div>
+          <div class="t-date">Fall 2023</div>
           <div class="t-inst">Purdue University</div>
         </div>
       </div>
@@ -429,7 +510,7 @@
           <div class="t-role">TA to Prof. Kowsar Yousefi</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Jan – Jul 2021</div>
+          <div class="t-date">Spring 2021</div>
           <div class="t-inst">University of Tehran</div>
         </div>
       </div>
@@ -440,7 +521,7 @@
           <div class="t-role">TA to Prof. Amir Samimi</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Jan – Jul 2021</div>
+          <div class="t-date">Spring 2021</div>
           <div class="t-inst">Sharif University of Technology</div>
         </div>
       </div>
@@ -451,7 +532,7 @@
           <div class="t-role">TA to Prof. Atiyeh Vahidmanesh</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Jan – Jul 2020</div>
+          <div class="t-date">Spring 2020</div>
           <div class="t-inst">University of Tehran</div>
         </div>
       </div>
@@ -462,7 +543,7 @@
           <div class="t-role">TA to Prof. Amir Samimi</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Jan – Jul 2020</div>
+          <div class="t-date">Spring 2020</div>
           <div class="t-inst">Sharif University of Technology</div>
         </div>
       </div>
@@ -473,7 +554,7 @@
           <div class="t-role">TA to Prof. Ghahreman Abdoli</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Sep 2019 – Jan 2020</div>
+          <div class="t-date">Fall 2019</div>
           <div class="t-inst">University of Tehran</div>
         </div>
       </div>
@@ -484,7 +565,7 @@
           <div class="t-role">TA to Prof. Alireza Oryoie</div>
         </div>
         <div class="t-right">
-          <div class="t-date">Sep 2019 – Jan 2020</div>
+          <div class="t-date">Fall 2019</div>
           <div class="t-inst">University of Tehran</div>
         </div>
       </div>
@@ -494,7 +575,6 @@
     <section id="references">
       <h2>References</h2>
 
-      <!-- PhD -->
       <p class="ref-group-label">Ph.D. Committee</p>
       <div class="ref-grid">
 
@@ -525,7 +605,6 @@
 
       </div>
 
-      <!-- Masters -->
       <p class="ref-group-label">Master's Committee</p>
       <div class="ref-grid">
 
@@ -551,7 +630,6 @@
 <script>
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('nav a');
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -561,7 +639,6 @@
       }
     });
   }, { rootMargin: '-30% 0px -60% 0px' });
-
   sections.forEach(s => observer.observe(s));
 </script>
 
