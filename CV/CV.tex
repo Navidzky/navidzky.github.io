@@ -1,0 +1,210 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Navid Safahieh -- Job Market CV (2026-27)
+% Self-contained: standard article class, no custom .cls required.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt]{article}
+
+\usepackage[left=0.75in,top=0.7in,right=0.75in,bottom=0.7in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{needspace}
+\usepackage[hidelinks]{hyperref}
+
+\hypersetup{
+  colorlinks = true,
+  urlcolor   = blue,
+  linkcolor  = blue,
+  citecolor  = blue
+}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% ---- Section headings: small caps with a rule underneath ----
+\titleformat{\section}
+  {\normalfont\large\scshape}
+  {}{0em}{}[\vspace{-0.6em}\rule{\textwidth}{0.4pt}]
+\titlespacing*{\section}{0pt}{0.85em}{0.45em}
+
+% ---- Helper: entry with title flush left, date flush right ----
+\newcommand{\entry}[2]{%
+  \needspace{2\baselineskip}%
+  \textbf{#1}\hfill #2\par}
+
+% ---- Helper: role / institution line ----
+\newcommand{\role}[2]{\textit{#1}\hfill #2\par\vspace{0.2em}}
+
+% ---- Helper: paper title + description block ----
+\newcommand{\paper}[1]{\needspace{3\baselineskip}\textbf{#1}\par\vspace{0.15em}}
+
+\newenvironment{desc}
+  {\begin{itemize}[leftmargin=1.2em,topsep=0.1em,itemsep=0.15em,parsep=0pt]}
+  {\end{itemize}\vspace{0.5em}}
+
+\newenvironment{tight}
+  {\begin{itemize}[leftmargin=1.2em,topsep=0.1em,itemsep=0.15em,parsep=0pt]}
+  {\end{itemize}}
+
+\begin{document}
+
+% ======================= HEADER =======================
+\begin{center}
+  {\LARGE\bfseries Navid Safahieh}\\[0.5em]
+  Department of Economics, Mitch Daniels School of Business\\
+  Purdue University, 403 Mitch Daniels Blvd, West Lafayette, IN 47907\\[0.3em]
+  +1 (765) 771--0021 \quad$\cdot$\quad
+  \href{mailto:nsafahie@purdue.edu}{nsafahie@purdue.edu} \quad$\cdot$\quad
+  \href{https://navidzky.github.io}{navidzky.github.io}\\[0.2em]
+  Nationality: New Zealand / Iran\\[0.4em]
+  \textbf{On the job market 2026--27}
+\end{center}
+
+% ======================= RESEARCH INTERESTS =======================
+\section{Research Interests}
+Transportation Economics, Search and Matching, Causal Inference
+
+% ======================= EDUCATION =======================
+\section{Education}
+
+\entry{Ph.D. in Economics}{Expected 2027}
+Purdue University, Mitch Daniels School of Business, West Lafayette, IN\par\vspace{0.4em}
+
+\entry{M.Sc. in Economics}{2021}
+University of Tehran, Tehran, Iran\par\vspace{0.4em}
+
+\entry{B.Sc. in Civil and Environmental Engineering}{2018}
+Sharif University of Technology, Tehran, Iran\par\vspace{0.5em}
+
+\textbf{Dissertation Committee:} Cathy Zhang (Chair), Mario J. Crucini, Seunghoon Na, Chong Xiang
+
+% ======================= JOB MARKET PAPER =======================
+\section{Job Market Paper}
+
+\paper{The Economics of Chokepoints: Remote Matching and Entry Deterrence in Global Oil Tanker Markets}
+Maritime chokepoints are conventionally modeled as raising only the marginal cost of transport.
+I argue they also act as an entry cost: because tankers are fixed remotely and days in advance,
+carriers choose which distant market to commit to under uncertainty about conditions on arrival,
+so an anticipated chokepoint restriction deters entry before any physical closure occurs --- a
+channel that local, random-matching frameworks cannot generate. I distinguish gateways, whose
+closure disconnects a trading region (e.g., the Strait of Hormuz), from passages with viable
+substitutes (e.g., Bab el-Mandeb): gateway disruptions shift the fleet sharply and the shift
+persists after reopening, while passage disruptions produce gradual rerouting. Carriers withdraw
+from gateway-affected markets strictly before closure, and freight rates understate the cost of
+disruption because cargoes that attract no applicants leave no price record. The 2026 Strait of
+Hormuz restriction supplies the identifying episode.
+
+% ======================= PUBLICATIONS =======================
+\section{Publications}
+
+\paper{\href{https://doi.org/10.1016/j.iatssr.2022.03.004}{Modeling the Accuracy of Traffic Crash Prediction Models}}
+\begin{desc}
+  \item \textit{IATSS Research}, 2022. With Mohammad Hesam Rashidi, Soheil Keshavarz, Parham Pazari, and Amir Samimi.
+  \item Models forecasting accuracy across 31 Iranian provinces using macroeconomic variables and road
+  traffic indicators. Crash variability, average historical crash count, employment ratio, GDP per
+  capita, and traffic exposure are the variables that affect forecast accuracy.
+\end{desc}
+
+% ======================= WORKING PAPERS =======================
+\section{Working Papers}
+
+\paper{When Outside Options Shape the Labor Market: A Directed Search Perspective}
+\begin{desc}
+  \item Studies how differences in outside options across workers affect wages, firm entry, and job
+  allocation. I develop a directed search model with skilled and unskilled workers and high- and
+  low-tech firms, where only skilled workers hold outside options. Stronger outside options raise
+  posted wages for skilled workers but can reduce high-tech firm entry; as fewer high-tech jobs are
+  created, skilled workers' expected wages may fall, and unskilled workers are affected indirectly
+  through changes in firm composition and wage competition.
+\end{desc}
+
+\paper{\href{https://dx.doi.org/10.2139/ssrn.4830956}{The Heterogeneous Effects of Exogenous Shocks on Public Transportation Demand}}
+\begin{desc}
+  \item With Kowsar Yousefi and Amir Samimi.
+  \item A sudden gasoline price shock increased subway usage by roughly 3.9 percent, implying a
+  cross-price elasticity of about 0.044, while subway usage fell by roughly 42.6 percent during
+  the COVID-19 pandemic.
+\end{desc}
+
+% ======================= PRESENTATIONS =======================
+\section{Conference Presentations}
+\begin{tight}
+  \item NABE Transfer Pricing / Economic Measurement Conference (TEC2026) \hfill 2026 (submitted)
+  \item MEA 90th Annual Meetings, Chicago, IL \hfill March 2026
+\end{tight}
+
+% ======================= TRAINING =======================
+\section{Additional Training}
+\begin{tight}
+  \item Estimation of Structural Models with Conditional Choice Probabilities, Notre Dame, IN \hfill Summer 2025
+  \item 14th Annual Research Design for Causal Inference, Northwestern University, IL \hfill Summer 2025
+\end{tight}
+
+% ======================= TEACHING =======================
+\section{Teaching Experience}
+
+\entry{ECON 252 Principles of Macroeconomics (Undergraduate)}{Fall 2025}
+\role{Instructor --- Outstanding Teaching Award}{Purdue University}
+
+\entry{ECON 252 Principles of Macroeconomics (Undergraduate)}{Summer 2025}
+\role{Instructor --- Distinguished Teaching Award}{Purdue University}
+
+\entry{Macroeconomics (PhD)}{Fall 2023}
+\role{Teaching Assistant to Prof. Seunghoon Na}{Purdue University}
+
+\entry{Econometrics (Graduate)}{2019 -- 2021}
+\role{TA to Profs. Kowsar Yousefi, Atiyeh Vahidmanesh, and Alireza Oryoie}{University of Tehran}
+
+\entry{Game Theory (Graduate)}{Fall 2019}
+\role{Teaching Assistant to Prof. Ghahreman Abdoli}{University of Tehran}
+
+\entry{Econometrics in Transportation (Graduate)}{2020 -- 2021}
+\role{Teaching Assistant to Prof. Amir Samimi}{Sharif University of Technology}
+
+% ======================= AWARDS =======================
+\section{Fellowships and Awards}
+\begin{tight}
+  \item Bilsland Dissertation Fellowship, Purdue University \hfill 2026--27
+  \item Outstanding Teaching Award (ECON 252), Purdue University \hfill Fall 2025
+  \item Distinguished Teaching Award (ECON 252), Purdue University \hfill Summer 2025
+\end{tight}
+
+% ======================= SERVICE =======================
+\section{Service}
+\begin{tight}
+  \item Economics Senator, Business Doctoral Students Association, Purdue University \hfill % TODO: years
+\end{tight}
+
+% ======================= SKILLS =======================
+\section{Programming and Data Skills}
+MATLAB, R, Python, STATA, \LaTeX\par\vspace{0.3em}
+Structural modeling, numerical equilibrium computation, simulation-based methods, large-scale
+administrative and high-frequency vessel-tracking data (IMF PortWatch, ArcGIS/API pipelines).
+
+% ======================= LANGUAGES =======================
+\section{Languages}
+Farsi (Native), English (Fluent)
+
+% ======================= REFERENCES =======================
+\section{References}
+
+\begin{tabular}{@{}p{0.47\textwidth}p{0.47\textwidth}@{}}
+\textbf{Cathy Zhang} (Chair) & \textbf{Mario J. Crucini}\\
+Associate Professor & Professor\\
+Mitch Daniels School of Business & Mitch Daniels School of Business\\
+Purdue University & Purdue University\\
+\href{mailto:cmzhang@purdue.edu}{cmzhang@purdue.edu} & \href{mailto:mcrucini@purdue.edu}{mcrucini@purdue.edu}\\[0.8em]
+\textbf{Seunghoon Na} & \textbf{Chong Xiang}\\
+Assistant Professor & Professor\\
+Mitch Daniels School of Business & Mitch Daniels School of Business\\
+Purdue University & Purdue University\\
+\href{mailto:na28@purdue.edu}{na28@purdue.edu} & \href{mailto:cxiang@purdue.edu}{cxiang@purdue.edu}\\
+\end{tabular}
+
+\vfill
+\begin{center}\footnotesize Updated August 2026\end{center}
+
+\end{document}
