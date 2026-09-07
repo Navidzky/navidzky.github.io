@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Haul Line &middot; Navid Safahieh</title>
+<meta name="description" content="A budgeted bipartite-matching game: connect as many mines to factories as a $500 budget allows, then compare against an exact optimal solver."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%232c5282'/><text x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='Georgia,serif' font-size='14' font-weight='bold' fill='white'>NS</text></svg>"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f2eee1;
+  --surface:#fbf8ef;
+  --surface-2:#eae3d2;
+  --ink:#20262f;
+  --ink-dim:#5c6472;
+  --border:#20262f;
+  --grid:rgba(32,38,47,0.09);
+  --grid-strong:rgba(32,38,47,0.16);
+  --mine:#b8622e;
+  --factory:#1f6e78;
+  --accent:#c97a1e;
+  --good:#2f8f5b;
+  --bad:#c23b3b;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161f;
+    --surface:#161f2b;
+    --surface-2:#1d2733;
+    --ink:#e9ecf1;
+    --ink-dim:#96a2b0;
+    --border:#3a4453;
+    --grid:rgba(233,236,241,0.07);
+    --grid-strong:rgba(233,236,241,0.14);
+    --mine:#e08a4a;
+    --factory:#4fb6b0;
+    --accent:#f0a63e;
+    --good:#4bd18a;
+    --bad:#f0787a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161f;
+  --surface:#161f2b;
+  --surface-2:#1d2733;
+  --ink:#e9ecf1;
+  --ink-dim:#96a2b0;
+  --border:#3a4453;
+  --grid:rgba(233,236,241,0.07);
+  --grid-strong:rgba(233,236,241,0.14);
+  --mine:#e08a4a;
+  --factory:#4fb6b0;
+  --accent:#f0a63e;
+  --good:#4bd18a;
+  --bad:#f0787a;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+}
+.app{
+  max-width:960px;
+  margin:0 auto;
+  padding:28px 20px 48px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:11px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--factory);
+}
+h1{
+  font-family:"Big Shoulders Display",sans-serif;
+  font-weight:800;
+  font-size:42px;
+  line-height:1;
+  margin:2px 0 0;
+  letter-spacing:0.01em;
+  text-wrap:balance;
+}
+.subtitle{
+  margin:6px 0 0;
+  max-width:58ch;
+  color:var(--ink-dim);
+  font-size:14px;
+  line-height:1.5;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.stats{display:flex;gap:8px;flex-wrap:wrap;}
+.tile{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:7px 12px;
+  min-width:66px;
+  text-align:center;
+}
+.tile .label{
+  display:block;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:3px;
+}
+.tile .value{
+  font-family:"IBM Plex Mono",monospace;
+  font-weight:600;
+  font-size:19px;
+  font-variant-numeric:tabular-nums;
+}
+
+.mute-btn{
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:3px;
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  flex:none;
+}
+.mute-btn svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:1.6;}
+.mute-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.legend{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  font-size:12.5px;
+  color:var(--ink-dim);
+}
+.legend-item{display:flex;align-items:center;gap:7px;}
+.legend-item svg{width:18px;height:18px;flex:none;}
+.legend-item b{color:var(--ink);font-weight:600;}
+
+.hud{display:flex;gap:10px;flex-wrap:wrap;}
+.hud-chip{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:8px 14px;
+  flex:1 1 220px;
+}
+.hud-label{
+  display:block;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:4px;
+}
+.hud-value{
+  font-family:"IBM Plex Mono",monospace;
+  font-weight:700;
+  font-size:22px;
+  font-variant-numeric:tabular-nums;
+  color:var(--ink);
+}
+.hud-value.tight{color:var(--bad);}
+.hud-bar{
+  height:6px;
+  background:var(--surface-2);
+  border-radius:3px;
+  margin-top:7px;
+  overflow:hidden;
+}
+.hud-bar-fill{
+  height:100%;
+  background:var(--good);
+  width:100%;
+  transition:width 0.25s ease, background 0.25s ease;
+}
+.hud-bar-fill.warn{background:var(--accent);}
+.hud-bar-fill.tight{background:var(--bad);}
+
+.board-frame{
+  background:var(--surface);
+  border:2px solid var(--border);
+  border-radius:2px;
+  padding:4px;
+  position:relative;
+  overflow:hidden;
+}
+.board-frame.shake{animation:shake 0.4s ease;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-6px);}
+  40%{transform:translateX(5px);}
+  60%{transform:translateX(-4px);}
+  80%{transform:translateX(3px);}
+}
+#board{display:block;width:100%;height:auto;touch-action:none;}
+.node-hit{cursor:pointer;fill:transparent;}
+.node-hit:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.edge-hit{cursor:pointer;}
+
+.hint{margin:0;font-size:13px;color:var(--ink-dim);}
+.hint strong{color:var(--ink);font-weight:600;}
+.hint.warn{color:var(--bad);font-weight:600;}
+
+.controls{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  padding-top:2px;
+}
+.status{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:12.5px;
+  color:var(--ink-dim);
+  font-variant-numeric:tabular-nums;
+}
+.buttons{display:flex;gap:10px;flex-wrap:wrap;}
+button{
+  font-family:"IBM Plex Sans",sans-serif;
+  font-weight:600;
+  font-size:13.5px;
+  padding:10px 18px;
+  border-radius:3px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink);
+  cursor:pointer;
+}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+button:disabled{opacity:0.4;cursor:not-allowed;}
+button.primary{background:var(--mine);border-color:var(--mine);color:#fff8f0;}
+button.ghost{background:transparent;}
+button.next{background:var(--factory);border-color:var(--factory);color:#f2fbfa;}
+
+.results{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:18px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.results-head p{margin:6px 0 0;font-size:14px;color:var(--ink-dim);max-width:60ch;}
+.results-head .eyebrow.good{color:var(--good);}
+.results-head .eyebrow.bad{color:var(--bad);}
+
+.scoreboard{display:flex;align-items:center;gap:18px;}
+.score-box{
+  flex:1;
+  background:var(--surface-2);
+  border-radius:3px;
+  padding:12px 16px;
+  text-align:center;
+}
+.score-box.you{border:1px solid var(--mine);}
+.score-box.ai{border:1px solid var(--factory);}
+.score-label{
+  display:block;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.score-num{
+  display:block;
+  font-family:"Big Shoulders Display",sans-serif;
+  font-weight:800;
+  font-size:44px;
+  line-height:1.1;
+}
+.score-box.you .score-num{color:var(--mine);}
+.score-box.ai .score-num{color:var(--factory);}
+.score-sub{
+  display:block;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:11px;
+  color:var(--ink-dim);
+  font-variant-numeric:tabular-nums;
+}
+.score-vs{
+  font-family:"Big Shoulders Display",sans-serif;
+  font-weight:700;
+  font-size:16px;
+  color:var(--ink-dim);
+  flex:none;
+}
+
+.fieldnote{
+  border-left:3px solid var(--factory);
+  padding:10px 0 10px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.fieldnote p{margin:0;font-size:13px;line-height:1.55;color:var(--ink-dim);max-width:66ch;}
+.fieldnote p strong{color:var(--ink);font-weight:600;}
+
+.gridline-minor{stroke:var(--grid);stroke-width:1;}
+.gridline-major{stroke:var(--grid-strong);stroke-width:1;}
+.select-ring{fill:none;stroke:var(--accent);stroke-width:2;}
+.glyph-mine{stroke:var(--border);stroke-width:1.2;fill:var(--mine);pointer-events:none;}
+.glyph-mine.unlinked{opacity:0.55;}
+.glyph-factory{stroke:var(--border);stroke-width:1.2;fill:var(--factory);pointer-events:none;}
+.glyph-factory.unlinked{opacity:0.55;}
+.edge-line{stroke:var(--good);stroke-width:2.6;stroke-linecap:round;fill:none;}
+.edge-hit{stroke:transparent;stroke-width:16;fill:none;cursor:pointer;}
+.ai-line{stroke:var(--factory);stroke-width:2;stroke-dasharray:6 5;fill:none;opacity:0.85;}
+.drag-line{stroke:var(--accent);stroke-width:2.6;stroke-linecap:round;fill:none;}
+.drag-line.snap{stroke:var(--good);}
+.cost-label rect{fill:var(--surface);stroke:var(--border);stroke-width:1;}
+.cost-label text{font-family:"IBM Plex Mono",monospace;font-size:9px;fill:var(--ink-dim);}
+.cost-label.preview-ok rect{stroke:var(--good);}
+.cost-label.preview-ok text{fill:var(--good);font-weight:600;}
+.cost-label.preview-bad rect{stroke:var(--bad);}
+.cost-label.preview-bad text{fill:var(--bad);font-weight:600;}
+
+@media (max-width:560px){
+  h1{font-size:32px;}
+  .scoreboard{flex-direction:column;}
+  .score-vs{transform:rotate(90deg);}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="eyebrow">Budgeted haul contract</span>
+      <h1>Haul Line</h1>
+      <p class="subtitle">You've got a $500 haul budget — nowhere near enough to wire up every mine. Drag connections to as many mines as you can afford, submit, then see how many the AI managed to fit in with the exact same budget.</p>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:8px;">
+      <div class="stats" id="stats">
+        <div class="tile"><span class="label">Games</span><span class="value" id="statGames">0</span></div>
+        <div class="tile"><span class="label">Ties</span><span class="value" id="statTies">0</span></div>
+      </div>
+      <button class="mute-btn" id="muteBtn" aria-label="Mute sound" title="Mute sound">
+        <svg id="muteIcon" viewBox="0 0 24 24"><path d="M4 9v6h4l6 5V4l-6 5H4z"/><path id="muteWave1" d="M16.5 8.5a5 5 0 010 7"/><path id="muteWave2" d="M19 6a8.5 8.5 0 010 12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span class="legend-item"><svg viewBox="0 0 24 24"><polygon points="12,4 20,19 4,19" fill="var(--mine)" stroke="var(--border)" stroke-width="1"/></svg><b>Mine</b>&nbsp;— ore source</span>
+    <span class="legend-item"><svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" fill="var(--factory)" stroke="var(--border)" stroke-width="1"/><rect x="14" y="3" width="4" height="7" fill="var(--factory)" stroke="var(--border)" stroke-width="1"/></svg><b>Factory</b>&nbsp;— demand site</span>
+  </div>
+
+  <div class="hud">
+    <div class="hud-chip">
+      <span class="hud-label">Haul budget remaining</span>
+      <span class="hud-value" id="hudBudget">$500</span>
+      <div class="hud-bar"><div class="hud-bar-fill" id="hudBudgetFill"></div></div>
+    </div>
+    <div class="hud-chip">
+      <span class="hud-label">Mines connected</span>
+      <span class="hud-value" id="hudConnected">0 / 8</span>
+    </div>
+  </div>
+
+  <div class="board-frame" id="boardFrame">
+    <svg id="board" viewBox="0 0 640 460" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="gridMinor" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M20 0H0V20" fill="none" class="gridline-minor"/>
+        </pattern>
+        <pattern id="gridMajor" width="100" height="100" patternUnits="userSpaceOnUse">
+          <rect width="100" height="100" fill="url(#gridMinor)"/>
+          <path d="M100 0H0V100" fill="none" class="gridline-major"/>
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="640" height="460" fill="url(#gridMajor)"/>
+      <g id="aiGroup"></g>
+      <g id="edgeGroup"></g>
+      <g id="dragGroup"></g>
+      <g id="truckGroup"></g>
+      <g id="nodeGroup"></g>
+      <g id="labelGroup"></g>
+      <g id="confettiGroup"></g>
+      <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-dim)">
+        <text x="480" y="414" id="stampSheet">SHEET HL-01</text>
+        <text x="480" y="428">SCALE 1 : 1</text>
+      </g>
+    </svg>
+  </div>
+
+  <p class="hint" id="hint">Drag from a mine to a factory to lay a haul line.</p>
+
+  <div class="controls">
+    <span class="status" id="status">0 / 8 connected · $0 / $500 spent</span>
+    <div class="buttons">
+      <button class="ghost" id="resetBtn">Clear lines</button>
+      <button class="primary" id="submitBtn">Submit haul plan</button>
+      <button class="next" id="nextBtn" hidden>Play again →</button>
+    </div>
+  </div>
+
+  <section class="results" id="results" hidden>
+    <div class="results-head">
+      <span class="eyebrow" id="resultTitle">Result</span>
+      <p id="resultMsg"></p>
+    </div>
+    <div class="scoreboard">
+      <div class="score-box you">
+        <span class="score-label">You</span>
+        <span class="score-num" id="yourScoreNum">0</span>
+        <span class="score-sub" id="yourScoreSub">$0 spent</span>
+      </div>
+      <span class="score-vs">vs</span>
+      <div class="score-box ai">
+        <span class="score-label">AI</span>
+        <span class="score-num" id="aiScoreNum">0</span>
+        <span class="score-sub" id="aiScoreSub">$0 spent</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="fieldnote">
+    <span class="eyebrow">Field note — a budgeted assignment problem</span>
+    <p>With more affordable-looking pairs than mines, greedily grabbing the cheapest connection you see isn't always right — it can lock up a factory that would've completed two other cheap pairs instead of one. This is the same bipartite matching machinery behind the classic Monge transport problem, just with a hard spending cap bolted on: the AI isn't guessing, it's searching every affordable combination to find the one that connects the most mines.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const NS = "http://www.w3.org/2000/svg";
+  const X_MIN = 55, X_MAX = 585;
+  const Y_MIN = 45, Y_MAX = 385;
+  const R = 12;
+  const DIST_SCALE = 0.02;
+  const N = 8;
+  const BUDGET = 500;
+  const TARGET_FULL_COST = 750;
+
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let mines = [], factories = [], links = [];
+  let pending = null;
+  let submitted = false;
+  let dragCandidate = null, dragState = null;
+  let RATE = 1;
+  let aiResult = null;
+  let muted = false;
+  let gamesPlayed = 0, ties = 0;
+  let flashTimer = null;
+
+  try { muted = localStorage.getItem("haulline-muted") === "1"; } catch(e){}
+  try { gamesPlayed = parseInt(localStorage.getItem("haulline-games"), 10) || 0; } catch(e){}
+  try { ties = parseInt(localStorage.getItem("haulline-ties"), 10) || 0; } catch(e){}
+
+  const board = document.getElementById("board");
+  const boardFrame = document.getElementById("boardFrame");
+  const aiGroup = document.getElementById("aiGroup");
+  const edgeGroup = document.getElementById("edgeGroup");
+  const nodeGroup = document.getElementById("nodeGroup");
+  const dragGroup = document.getElementById("dragGroup");
+  const truckGroup = document.getElementById("truckGroup");
+  const labelGroup = document.getElementById("labelGroup");
+  const confettiGroup = document.getElementById("confettiGroup");
+  const hint = document.getElementById("hint");
+  const statusEl = document.getElementById("status");
+  const submitBtn = document.getElementById("submitBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const resultsEl = document.getElementById("results");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultMsg = document.getElementById("resultMsg");
+  const yourScoreNum = document.getElementById("yourScoreNum");
+  const yourScoreSub = document.getElementById("yourScoreSub");
+  const aiScoreNum = document.getElementById("aiScoreNum");
+  const aiScoreSub = document.getElementById("aiScoreSub");
+  const stampSheet = document.getElementById("stampSheet");
+  const statGames = document.getElementById("statGames");
+  const statTies = document.getElementById("statTies");
+  const hudBudget = document.getElementById("hudBudget");
+  const hudBudgetFill = document.getElementById("hudBudgetFill");
+  const hudConnected = document.getElementById("hudConnected");
+  const muteBtn = document.getElementById("muteBtn");
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function rand(a, b){ return a + Math.random() * (b - a); }
+  function fmt$(n){ return "$" + Math.round(Math.abs(n)).toLocaleString(); }
+
+  // ---------- audio ----------
+  let audioCtx = null;
+  function ensureAudio(){
+    if (audioCtx) return;
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+  }
+  function tone(freq, t0, dur, type, peak){
+    if (muted || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(peak || 0.14, t0 + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(t0); osc.stop(t0 + dur + 0.02);
+  }
+  function playConnect(){ if (audioCtx) tone(520, audioCtx.currentTime, 0.08, "square", 0.06); }
+  function playDisconnect(){ if (audioCtx) tone(220, audioCtx.currentTime, 0.09, "sine", 0.06); }
+  function playDenied(){
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    tone(180, t, 0.14, "sawtooth", 0.08);
+    tone(140, t + 0.09, 0.16, "sawtooth", 0.08);
+  }
+  function playSubmit(){ if (audioCtx) tone(180, audioCtx.currentTime, 0.18, "sawtooth", 0.05); }
+  function playPerfect(){
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, t + i * 0.09, 0.22, "triangle", 0.11));
+  }
+  function playBuzz(){
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    tone(160, t, 0.16, "sawtooth", 0.09);
+    tone(110, t + 0.1, 0.2, "sawtooth", 0.09);
+  }
+  function updateMuteIcon(){
+    muteBtn.setAttribute("aria-label", muted ? "Unmute sound" : "Mute sound");
+    document.getElementById("muteWave1").style.display = muted ? "none" : "";
+    document.getElementById("muteWave2").style.display = muted ? "none" : "";
+  }
+  muteBtn.addEventListener("click", () => {
+    muted = !muted;
+    try { localStorage.setItem("haulline-muted", muted ? "1" : "0"); } catch(e){}
+    updateMuteIcon();
+    ensureAudio();
+  });
+  updateMuteIcon();
+  window.addEventListener("pointerdown", ensureAudio, { once: true });
+
+  // ---------- geometry ----------
+  function scatterPoints(n, minGap){
+    const pts = [];
+    let tries = 0;
+    while (pts.length < n && tries < 3000){
+      tries++;
+      const x = rand(X_MIN, X_MAX), y = rand(Y_MIN, Y_MAX);
+      if (pts.every((p) => Math.hypot(p.x - x, p.y - y) >= minGap)) pts.push({ x, y });
+    }
+    while (pts.length < n) pts.push({ x: rand(X_MIN, X_MAX), y: rand(Y_MIN, Y_MAX) });
+    return pts;
+  }
+  function generateLayout(n){
+    return { mines: scatterPoints(n, 48), factories: scatterPoints(n, 48) };
+  }
+  function edgeKm(mIdx, fIdx){ return Math.hypot(mines[mIdx].x - factories[fIdx].x, mines[mIdx].y - factories[fIdx].y) * DIST_SCALE; }
+  function edgeCost$(mIdx, fIdx){ return edgeKm(mIdx, fIdx) * RATE; }
+  function toSvgPoint(evt){
+    const rect = board.getBoundingClientRect();
+    return {
+      x: (evt.clientX - rect.left) * (640 / rect.width),
+      y: (evt.clientY - rect.top) * (460 / rect.height)
+    };
+  }
+  function nearestNode(type, pt, maxR){
+    const arr = type === "mine" ? mines : factories;
+    let best = null, bestD = Infinity;
+    arr.forEach((pos, i) => {
+      const d = Math.hypot(pos.x - pt.x, pos.y - pt.y);
+      if (d < bestD){ bestD = d; best = i; }
+    });
+    return (best != null && bestD <= maxR) ? best : null;
+  }
+  function mineLinkedTo(factoryIdx){ return links.indexOf(factoryIdx); }
+
+  // ---------- solvers ----------
+  // Pure geometry, no $ yet: the cheapest way to connect every single mine.
+  function bruteForceMinFullKm(){
+    const used = new Array(N).fill(false);
+    const perm = new Array(N);
+    let best = Infinity;
+    function recurse(i, partial){
+      if (partial >= best) return;
+      if (i === N){ best = partial; return; }
+      for (let j = 0; j < N; j++){
+        if (used[j]) continue;
+        used[j] = true;
+        recurse(i + 1, partial + edgeKm(i, j));
+        used[j] = false;
+      }
+    }
+    recurse(0, 0);
+    return best;
+  }
+  // With $ now attached to every possible pair, find the largest number of
+  // mines connectable without the running total ever passing the budget —
+  // branch-and-bound over "skip this mine" vs "connect it to factory j".
+  function computeMaxUnderBudget(budget){
+    const used = new Array(N).fill(false);
+    const perm = new Array(N).fill(null);
+    let bestCount = 0, bestCost = 0, bestPerm = new Array(N).fill(null);
+    function recurse(i, count, cost){
+      if (cost > budget) return;
+      if (count + (N - i) <= bestCount) return;
+      if (i === N){
+        if (count > bestCount || (count === bestCount && cost < bestCost)){
+          bestCount = count; bestCost = cost; bestPerm = perm.slice();
+        }
+        return;
+      }
+      perm[i] = null;
+      recurse(i + 1, count, cost);
+      for (let j = 0; j < N; j++){
+        if (used[j]) continue;
+        const c = edgeCost$(i, j);
+        if (cost + c > budget) continue;
+        used[j] = true;
+        perm[i] = j;
+        recurse(i + 1, count + 1, cost + c);
+        used[j] = false;
+      }
+      perm[i] = null;
+    }
+    recurse(0, 0, 0);
+    return { count: bestCount, cost: bestCost, perm: bestPerm };
+  }
+  function computeCost$(lnk){
+    let sum = 0;
+    for (let i = 0; i < lnk.length; i++) if (lnk[i] != null) sum += edgeCost$(i, lnk[i]);
+    return sum;
+  }
+  function remainingBudget(){ return BUDGET - computeCost$(links); }
+
+  // ---------- round setup ----------
+  function setupGame(){
+    const layout = generateLayout(N);
+    mines = layout.mines;
+    factories = layout.factories;
+    const fullKm = bruteForceMinFullKm();
+    RATE = TARGET_FULL_COST / fullKm;
+    aiResult = computeMaxUnderBudget(BUDGET);
+
+    links = new Array(N).fill(null);
+    pending = null;
+    submitted = false;
+    dragCandidate = null;
+    dragState = null;
+    clearFlash();
+    truckGroup.innerHTML = "";
+    confettiGroup.innerHTML = "";
+    resultsEl.hidden = true;
+    submitBtn.hidden = false;
+    submitBtn.disabled = false;
+    nextBtn.hidden = true;
+    resetBtn.disabled = false;
+    stampSheet.textContent = "SHEET HL-" + String(gamesPlayed + 1).padStart(2, "0");
+    updateHud();
+    render();
+    updateStatus();
+  }
+
+  function connect(mineIdx, factoryIdx){
+    for (let i = 0; i < links.length; i++) if (links[i] === factoryIdx) links[i] = null;
+    links[mineIdx] = factoryIdx;
+  }
+
+  function tryConnect(mineIdx, factoryIdx){
+    const cost = edgeCost$(mineIdx, factoryIdx);
+    if (cost > remainingBudget() + 1e-9){
+      playDenied();
+      shakeBoard();
+      showFlash("Can't afford that haul — needs " + fmt$(cost) + ", only " + fmt$(remainingBudget()) + " left.");
+      return false;
+    }
+    connect(mineIdx, factoryIdx);
+    playConnect();
+    return true;
+  }
+
+  function onNodeClick(type, idx){
+    if (submitted) return;
+    if (pending && pending.type !== type){
+      if (type === "factory") tryConnect(pending.idx, idx);
+      else tryConnect(idx, pending.idx);
+      pending = null;
+    } else if (pending && pending.type === type && pending.idx === idx){
+      pending = null;
+    } else {
+      pending = { type, idx };
+    }
+    render();
+    updateStatus();
+  }
+
+  function removeLink(mineIdx){
+    if (submitted) return;
+    links[mineIdx] = null;
+    pending = null;
+    playDisconnect();
+    render();
+    updateStatus();
+  }
+
+  function clearFlash(){
+    clearTimeout(flashTimer);
+    flashTimer = null;
+    hint.classList.remove("warn");
+  }
+  function showFlash(msg){
+    clearTimeout(flashTimer);
+    hint.textContent = msg;
+    hint.classList.add("warn");
+    flashTimer = setTimeout(() => {
+      flashTimer = null;
+      hint.classList.remove("warn");
+      updateStatus();
+    }, 1900);
+  }
+
+  function updateHud(){
+    const remaining = remainingBudget();
+    hudBudget.textContent = fmt$(remaining);
+    hudBudget.className = "hud-value" + (remaining < BUDGET * 0.15 ? " tight" : "");
+    const frac = Math.max(0, remaining / BUDGET);
+    hudBudgetFill.style.width = (frac * 100) + "%";
+    hudBudgetFill.className = "hud-bar-fill" + (frac < 0.15 ? " tight" : frac < 0.4 ? " warn" : "");
+    const linked = links.filter((l) => l != null).length;
+    hudConnected.textContent = linked + " / " + N;
+  }
+
+  function updateStatus(){
+    updateHud();
+    const linked = links.filter((l) => l != null).length;
+    statusEl.textContent = linked + " / " + N + " connected · " + fmt$(computeCost$(links)) + " / " + fmt$(BUDGET) + " spent";
+    if (submitted || flashTimer) return;
+    if (pending){
+      hint.innerHTML = pending.type === "mine"
+        ? "Mine picked up — drop it on a factory, or <strong>tap one</strong> to connect."
+        : "Factory picked up — drop it on a mine, or <strong>tap one</strong> to connect.";
+    } else if (linked === 0){
+      hint.innerHTML = "Drag from a mine to a factory to lay a haul line.";
+    } else {
+      hint.innerHTML = "Keep connecting, or <strong>submit your haul plan</strong> when you're done.";
+    }
+  }
+
+  function submitPlan(){
+    submitted = true;
+    playSubmit();
+    const yourCount = links.filter((l) => l != null).length;
+    const yourCost = computeCost$(links);
+    const yourLeft = BUDGET - yourCost;
+    const aiLeft = BUDGET - aiResult.cost;
+
+    resultsEl.hidden = false;
+    yourScoreNum.textContent = yourCount;
+    yourScoreSub.textContent = fmt$(yourCost) + " spent · " + fmt$(yourLeft) + " left";
+    aiScoreNum.textContent = aiResult.count;
+    aiScoreSub.textContent = fmt$(aiResult.cost) + " spent · " + fmt$(aiLeft) + " left";
+
+    // Count wins first; a matching count then comes down to who kept more
+    // budget in reserve. The AI's count is always the true max and its cost
+    // is always the cheapest way to hit that count, so the only way to
+    // actually tie it is to match both — never beat it on either.
+    if (yourCount < aiResult.count){
+      const gap = aiResult.count - yourCount;
+      resultTitle.textContent = gap + " connection" + (gap > 1 ? "s" : "") + " short of the AI's best";
+      resultTitle.className = "eyebrow bad";
+      resultMsg.textContent = "The AI found room for " + gap + " more mine" + (gap > 1 ? "s" : "") + " inside the same $500 — check the dashed routes below to see how it freed up the budget.";
+      playBuzz();
+    } else if (yourCost > aiResult.cost + 0.01){
+      resultTitle.textContent = "Same count, but the AI spent less";
+      resultTitle.className = "eyebrow bad";
+      resultMsg.textContent = "You both connected " + yourCount + " mines, but the AI did it for " + fmt$(aiResult.cost) + " against your " + fmt$(yourCost) + " — with an equal count, more budget left in reserve wins the tie.";
+      playBuzz();
+    } else {
+      resultTitle.textContent = "Tied with the AI";
+      resultTitle.className = "eyebrow good";
+      resultMsg.textContent = "Same number of mines connected, same money spent doing it — that's the exact ceiling this $500 buys. Nobody does better without a bigger budget.";
+      playPerfect();
+      spawnConfetti();
+      ties++;
+      try { localStorage.setItem("haulline-ties", String(ties)); } catch(e){}
+      statTies.textContent = ties;
+    }
+
+    gamesPlayed++;
+    try { localStorage.setItem("haulline-games", String(gamesPlayed)); } catch(e){}
+    statGames.textContent = gamesPlayed;
+
+    submitBtn.hidden = true;
+    nextBtn.hidden = false;
+    resetBtn.disabled = true;
+    spawnTrucks();
+    render();
+    updateStatus();
+  }
+
+  function spawnConfetti(){
+    if (reduceMotion) return;
+    confettiGroup.innerHTML = "";
+    const colors = ["var(--mine)", "var(--factory)", "var(--good)", "var(--accent)"];
+    for (let i = 0; i < 26; i++){
+      const x = rand(60, 580), y = rand(-20, 40);
+      const r = el("rect", {
+        x, y, width: rand(4, 8), height: rand(4, 8),
+        fill: colors[i % colors.length],
+        transform: "rotate(" + Math.round(rand(0, 360)) + " " + x + " " + y + ")",
+        opacity: "1"
+      });
+      const fall = document.createElementNS(NS, "animate");
+      fall.setAttribute("attributeName", "y");
+      fall.setAttribute("to", 480);
+      fall.setAttribute("dur", (1.1 + Math.random() * 0.6) + "s");
+      fall.setAttribute("fill", "freeze");
+      const fade = document.createElementNS(NS, "animate");
+      fade.setAttribute("attributeName", "opacity");
+      fade.setAttribute("to", 0);
+      fade.setAttribute("begin", "0.8s");
+      fade.setAttribute("dur", "0.6s");
+      fade.setAttribute("fill", "freeze");
+      r.appendChild(fall);
+      r.appendChild(fade);
+      confettiGroup.appendChild(r);
+    }
+    setTimeout(() => { confettiGroup.innerHTML = ""; }, 2000);
+  }
+
+  function spawnTrucks(){
+    truckGroup.innerHTML = "";
+    let maxEnd = 0;
+    links.forEach((fIdx, mIdx) => {
+      if (fIdx == null) return;
+      const m = mines[mIdx], f = factories[fIdx];
+      const dur = reduceMotion ? 0.01 : Math.min(2.6, Math.max(0.7, edgeKm(mIdx, fIdx) * 0.32));
+      const fadeStart = dur + 0.6;
+      maxEnd = Math.max(maxEnd, fadeStart + 0.5);
+      const g = el("g", { class: "truck" });
+      const body = el("rect", { x: -7, y: -5, width: 14, height: 8, rx: 1.2, fill: "var(--good)", stroke: "var(--border)", "stroke-width": "0.8" });
+      const cab = el("rect", { x: 4, y: -6.5, width: 5, height: 5, rx: 1, fill: "var(--good)", stroke: "var(--border)", "stroke-width": "0.8" });
+      g.appendChild(body);
+      g.appendChild(cab);
+      const motion = document.createElementNS(NS, "animateMotion");
+      motion.setAttribute("path", "M" + m.x + "," + m.y + " L" + f.x + "," + f.y);
+      motion.setAttribute("dur", dur + "s");
+      motion.setAttribute("fill", "freeze");
+      motion.setAttribute("rotate", "auto");
+      g.appendChild(motion);
+      if (!reduceMotion){
+        const fade = document.createElementNS(NS, "animate");
+        fade.setAttribute("attributeName", "opacity");
+        fade.setAttribute("begin", fadeStart + "s");
+        fade.setAttribute("dur", "0.5s");
+        fade.setAttribute("to", "0");
+        fade.setAttribute("fill", "freeze");
+        g.appendChild(fade);
+      }
+      truckGroup.appendChild(g);
+    });
+    if (maxEnd > 0) setTimeout(() => { truckGroup.innerHTML = ""; }, (maxEnd + 0.3) * 1000);
+  }
+
+  function shakeBoard(){
+    if (reduceMotion) return;
+    boardFrame.classList.remove("shake");
+    requestAnimationFrame(() => boardFrame.classList.add("shake"));
+  }
+
+  function goNext(){
+    setupGame();
+  }
+
+  // ---------- glyphs ----------
+  function buildMineGlyph(x, y, size, cls){
+    return el("polygon", {
+      points: x + "," + (y - size) + " " + (x - size * 0.92) + "," + (y + size * 0.62) + " " + (x + size * 0.92) + "," + (y + size * 0.62),
+      class: "glyph-mine " + cls
+    });
+  }
+  function buildFactoryGlyph(x, y, size, cls){
+    const g = el("g", { class: "glyph-factory " + cls });
+    g.appendChild(el("rect", { x: x - size, y: y - size * 0.35, width: size * 2, height: size * 1.35 }));
+    g.appendChild(el("rect", { x: x + size * 0.28, y: y - size * 1.15, width: size * 0.5, height: size * 0.85 }));
+    return g;
+  }
+  function buildCostLabel(x, y, text, cls){
+    const g = el("g", { class: "cost-label" + (cls ? " " + cls : "") });
+    const charW = 5.6, padX = 4, h = 13;
+    const w = text.length * charW + padX * 2;
+    g.appendChild(el("rect", { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 3 }));
+    const t = el("text", { x: x, y: y + 3.2, "text-anchor": "middle" });
+    t.textContent = text;
+    g.appendChild(t);
+    return g;
+  }
+
+  // ---------- render ----------
+  function render(){
+    edgeGroup.innerHTML = "";
+    aiGroup.innerHTML = "";
+    nodeGroup.innerHTML = "";
+    dragGroup.innerHTML = "";
+    labelGroup.innerHTML = "";
+
+    if (submitted && aiResult){
+      aiResult.perm.forEach((fIdx, mIdx) => {
+        if (fIdx == null) return;
+        const m = mines[mIdx], f = factories[fIdx];
+        aiGroup.appendChild(el("line", { x1: m.x, y1: m.y, x2: f.x, y2: f.y, class: "ai-line" }));
+      });
+    }
+
+    links.forEach((fIdx, mIdx) => {
+      if (fIdx == null) return;
+      const m = mines[mIdx], f = factories[fIdx];
+      const hit = el("line", { x1: m.x, y1: m.y, x2: f.x, y2: f.y, class: "edge-hit" });
+      hit.addEventListener("click", (ev) => { ev.stopPropagation(); removeLink(mIdx); });
+      edgeGroup.appendChild(hit);
+      edgeGroup.appendChild(el("line", { x1: m.x, y1: m.y, x2: f.x, y2: f.y, class: "edge-line" }));
+      const mx = (m.x + f.x) / 2, my = (m.y + f.y) / 2;
+      labelGroup.appendChild(buildCostLabel(mx, my, fmt$(edgeCost$(mIdx, fIdx)), "confirmed"));
+    });
+
+    if (dragState){
+      const from = dragState.type === "mine" ? mines[dragState.idx] : factories[dragState.idx];
+      dragGroup.appendChild(el("line", {
+        x1: from.x, y1: from.y, x2: dragState.x, y2: dragState.y,
+        class: "drag-line" + (dragState.snapTarget != null ? " snap" : "")
+      }));
+      if (dragState.snapTarget != null){
+        const mineIdx = dragState.type === "mine" ? dragState.idx : dragState.snapTarget;
+        const factoryIdx = dragState.type === "mine" ? dragState.snapTarget : dragState.idx;
+        const cost = edgeCost$(mineIdx, factoryIdx);
+        const afford = cost <= remainingBudget() + 1e-9;
+        labelGroup.appendChild(buildCostLabel(dragState.x, dragState.y - 18, fmt$(cost), afford ? "preview-ok" : "preview-bad"));
+      }
+    }
+
+    mines.forEach((m, i) => {
+      const isPending = pending && pending.type === "mine" && pending.idx === i;
+      const isSnap = dragState && dragState.type === "factory" && dragState.snapTarget === i;
+      const linked = links[i] != null;
+      const g = el("g", {});
+      if (isPending || isSnap) g.appendChild(el("circle", { cx: m.x, cy: m.y, r: R + 7, class: "select-ring" }));
+      const hitNode = el("circle", {
+        cx: m.x, cy: m.y, r: R + 6, class: "node-hit",
+        tabindex: submitted ? "-1" : "0", role: "button",
+        "aria-label": "Mine " + (i + 1) + (linked ? ", connected" : ", not connected")
+      });
+      g.appendChild(hitNode);
+      g.appendChild(buildMineGlyph(m.x, m.y, R, linked ? "linked" : "unlinked"));
+      hitNode.addEventListener("pointerdown", (ev) => startDragCandidate(ev, "mine", i));
+      hitNode.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); onNodeClick("mine", i); }
+      });
+      nodeGroup.appendChild(g);
+    });
+
+    factories.forEach((f, j) => {
+      const isPending = pending && pending.type === "factory" && pending.idx === j;
+      const isSnap = dragState && dragState.type === "mine" && dragState.snapTarget === j;
+      const linked = links.includes(j);
+      const g = el("g", {});
+      if (isPending || isSnap) g.appendChild(el("circle", { cx: f.x, cy: f.y, r: R + 7, class: "select-ring" }));
+      const hitNode = el("circle", {
+        cx: f.x, cy: f.y, r: R + 6, class: "node-hit",
+        tabindex: submitted ? "-1" : "0", role: "button",
+        "aria-label": "Factory " + (j + 1) + (linked ? ", connected" : ", not connected")
+      });
+      g.appendChild(hitNode);
+      g.appendChild(buildFactoryGlyph(f.x, f.y, R, linked ? "linked" : "unlinked"));
+      hitNode.addEventListener("pointerdown", (ev) => startDragCandidate(ev, "factory", j));
+      hitNode.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); onNodeClick("factory", j); }
+      });
+      nodeGroup.appendChild(g);
+    });
+  }
+
+  // ---------- drag interaction ----------
+  function startDragCandidate(evt, type, idx){
+    if (submitted) return;
+    evt.preventDefault();
+    dragCandidate = { type, idx, startX: evt.clientX, startY: evt.clientY, freed: false };
+    window.addEventListener("pointermove", onDragMove);
+    window.addEventListener("pointerup", onDragUp, { once: true });
+  }
+
+  function onDragMove(evt){
+    if (!dragCandidate) return;
+    const ddx = evt.clientX - dragCandidate.startX;
+    const ddy = evt.clientY - dragCandidate.startY;
+    if (!dragState && Math.hypot(ddx, ddy) > 6){
+      if (!dragCandidate.freed){
+        if (dragCandidate.type === "mine" && links[dragCandidate.idx] != null){
+          links[dragCandidate.idx] = null;
+        } else if (dragCandidate.type === "factory"){
+          const m = mineLinkedTo(dragCandidate.idx);
+          if (m !== -1) links[m] = null;
+        }
+        dragCandidate.freed = true;
+        updateStatus();
+      }
+      dragState = { type: dragCandidate.type, idx: dragCandidate.idx, x: 0, y: 0, snapTarget: null };
+    }
+    if (dragState){
+      const pt = toSvgPoint(evt);
+      const oppositeType = dragState.type === "mine" ? "factory" : "mine";
+      const snap = nearestNode(oppositeType, pt, 30);
+      dragState.snapTarget = snap;
+      if (snap != null){
+        const target = oppositeType === "mine" ? mines[snap] : factories[snap];
+        dragState.x = target.x; dragState.y = target.y;
+      } else {
+        dragState.x = pt.x; dragState.y = pt.y;
+      }
+      render();
+    }
+  }
+
+  function onDragUp(evt){
+    window.removeEventListener("pointermove", onDragMove);
+    if (dragState){
+      if (dragState.snapTarget != null){
+        const mineIdx = dragState.type === "mine" ? dragState.idx : dragState.snapTarget;
+        const factoryIdx = dragState.type === "mine" ? dragState.snapTarget : dragState.idx;
+        tryConnect(mineIdx, factoryIdx);
+      }
+      dragState = null;
+      render();
+      updateStatus();
+    } else if (dragCandidate){
+      onNodeClick(dragCandidate.type, dragCandidate.idx);
+    }
+    dragCandidate = null;
+  }
+
+  submitBtn.addEventListener("click", submitPlan);
+  nextBtn.addEventListener("click", goNext);
+  resetBtn.addEventListener("click", () => {
+    if (submitted) return;
+    links = new Array(N).fill(null);
+    pending = null;
+    render();
+    updateStatus();
+  });
+
+  statGames.textContent = gamesPlayed;
+  statTies.textContent = ties;
+  setupGame();
+})();
+
+// Report our content height to a parent window embedding us in an <iframe>
+// (used by playground.html); harmless no-op when opened as a top-level page.
+(function(){
+  function reportSize(){
+    try {
+      var h = document.documentElement.scrollHeight;
+      window.parent.postMessage({ type: "haulline-resize", height: h }, "*");
+    } catch(e){}
+  }
+  window.addEventListener("load", reportSize);
+  if (window.ResizeObserver){
+    new ResizeObserver(reportSize).observe(document.body);
+  } else {
+    setInterval(reportSize, 500);
+  }
+})();
+</script>
+
+</body>
+</html>
