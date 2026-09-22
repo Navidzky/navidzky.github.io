@@ -144,6 +144,9 @@ main {
 .about p { font-size: 1.0625rem; line-height: 1.75; color: var(--body); margin: 0 0 1rem; }
 .about p:last-child { margin-bottom: 0; }
 
+.about-item + .about-item { margin-top: 1.5rem; }
+.about-item__title { font-family: var(--serif); font-size: 1.0625rem; font-weight: 600; color: var(--ink); margin: 0 0 0.4rem; }
+
 .linkrow {
   display: flex;
   flex-wrap: wrap;
