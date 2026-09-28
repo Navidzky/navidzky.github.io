@@ -114,6 +114,7 @@ main {
   align-items: start;
 }
 .col-main { min-width: 0; }
+.home-main { max-width: 40rem; }
 .rail {
   display: flex;
   flex-direction: column;
