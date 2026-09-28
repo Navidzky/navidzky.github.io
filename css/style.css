@@ -132,7 +132,7 @@ main {
 }
 .hero__photo {
   width: 208px;
-  height: 248px;
+  height: 208px;
   border-radius: 40px 40px 8px 8px;
   overflow: hidden;
   background: var(--accent-tint);
@@ -414,7 +414,7 @@ hr.divider {
   .masthead__toggle { display: block; }
 
   .hero { grid-template-columns: 1fr; text-align: left; }
-  .hero__photo { width: 172px; height: 205px; }
+  .hero__photo { width: 172px; height: 172px; }
 
   .cards { grid-template-columns: 1fr; }
   .ref-grid { grid-template-columns: 1fr; }
