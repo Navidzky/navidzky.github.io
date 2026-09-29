@@ -174,9 +174,10 @@ main {
 .social-icons svg { width: 1.4rem; height: 1.4rem; fill: currentColor; }
 .social-icons .linkedin { color: #0a66c2; }
 .social-icons .youtube { color: #ff0000; }
-.social-icons .email { color: var(--ink); }
 .social-icons .github { color: #181717; }
 .social-icons .scholar { color: #4285f4; }
+
+.hero__email { font-size: 0.9375rem; color: var(--muted); margin: 0.6rem 0 0; }
 
 .about p { font-size: 1.0625rem; line-height: 1.75; color: var(--body); margin: 0 0 1rem; }
 .about p:last-child { margin-bottom: 0; }
