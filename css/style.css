@@ -114,13 +114,13 @@ main {
   align-items: start;
 }
 .col-main { min-width: 0; }
+.page-single { max-width: 46rem; }
 .rail {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
   padding-top: 0.25rem;
 }
-.rail .subhead { font-size: 0.9375rem; }
 
 .home-nav {
   display: flex;
@@ -259,17 +259,6 @@ hr.divider {
   margin: 0 0 0.5em;
 }
 
-/* ---------- Tags ---------- */
-.tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
-.tag {
-  display: inline-block;
-  padding: 0.22rem 0.7rem;
-  font-size: 0.8125rem;
-  color: var(--pill-text);
-  background: var(--accent-tint);
-  border-radius: 999px;
-}
-
 /* ---------- Featured paper (JMP) ---------- */
 .featured {
   background: var(--surface);
@@ -354,20 +343,6 @@ hr.divider {
 .paperlist > li { padding: 1.4rem 0; border-top: 1px solid var(--border); }
 .paperlist > li:last-child { border-bottom: 1px solid var(--border); }
 
-/* ---------- Education list ---------- */
-.edu-list { margin: 0; padding: 0; list-style: none; }
-.edu-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--border);
-}
-.edu-item:last-child { border-bottom: 1px solid var(--border); }
-.edu-deg { font-weight: 500; color: var(--ink); }
-.edu-inst { font-size: 0.875rem; color: var(--muted); }
-.edu-year { font-size: 0.875rem; color: var(--muted); white-space: nowrap; }
-
 /* ---------- Teaching list ---------- */
 .t-list { margin: 0 0 2rem; padding: 0; list-style: none; }
 .t-item {
@@ -385,20 +360,6 @@ hr.divider {
 .t-date { font-size: 0.875rem; color: var(--ink); }
 .t-inst { font-size: 0.8125rem; color: var(--muted); }
 .t-award { display: inline-block; margin-top: 0.35rem; font-size: 0.75rem; color: var(--accent); background: var(--accent-tint); padding: 0.15rem 0.55rem; border-radius: 999px; }
-
-/* ---------- Highlights strip ---------- */
-.highlights { margin: 1.75rem 0 0; padding: 1.25rem 1.4rem; background: var(--accent-tint); border-radius: 12px; list-style: none; }
-.highlights li { margin: 0 0 0.55rem; font-size: 0.9375rem; color: var(--ink); }
-.highlights li:last-child { margin-bottom: 0; }
-.highlights__label {
-  display: inline-block;
-  min-width: 5.5rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--accent);
-}
 
 /* ---------- CV cards ---------- */
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.5rem 0 2rem; }
@@ -475,6 +436,5 @@ hr.divider {
   .ref-grid { grid-template-columns: 1fr; }
   .t-item { flex-direction: column; }
   .t-right { text-align: left; }
-  .edu-item { flex-direction: column; gap: 0.15rem; }
   .tile-grid { grid-template-columns: 1fr; }
 }
